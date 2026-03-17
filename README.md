@@ -16,86 +16,24 @@ NanoPlot --fastq hifi_reads.fastq.gz -c red --tsv_stats -o nanoplot_hifi
 
 ## *De novo* assembly
 
-[Flye](https://github.com/fenderglass/Flye) v2.9
+[Flye](https://github.com/fenderglass/Flye) v2.9.6
 ```sh
 flye -o flye_v29_nano-hq_ont --nano-hq ont_reads.fastq.gz
-flye -o flye_v29_nano-corr_ont --nano-corr ont_reads.fastq.gz
-flye -o flye_v29_nano-corr_ont-q20 --nano-corr ont_q20_reads.fastq.gz
-flye -o flye_v29_pacbio-hifi_ont-q20 --pacbio-hifi ont_q20_reads.fastq.gz
+flye -o flye_v29_nano-hq_ont-q20 --nano-hq ont_q20_reads.fastq.gz
 flye -o flye_v29_pacbio-hifi_hifi --pacbio-hifi hifi_reads.fastq.gz
 ```
 
-[hifiasm](https://github.com/chhylp123/hifiasm) v0.19.4
+[hifiasm](https://github.com/chhylp123/hifiasm) v0.25.0
 ```sh
-hifiasm -l 0 -o hifiasm_out long_reads.fastq.gz
-hifiasm -l 3 -o hifiasm_out long_reads.fastq.gz
+hifiasm -l 0 -o hifiasm_ont_out --ont ont_reads.fastq.gz
+awk '/^S/{print ">"$2;print $3}' hifiasm_ont_out.bp.p_ctg.gfa > hifiasm_out.bp.p_ctg.fasta
+
+hifiasm -l 0 -o hifiasm_hifi_out hifi_reads.fastq.gz
+awk '/^S/{print ">"$2;print $3}' hifiasm_hifi_out.bp.p_ctg.gfa > hifiasm_out.bp.p_ctg.fasta
+```
+```sh
+hifiasm -l 0 -o hifiasm_out --ul ont_reads.fastq.gz hifi_reads.fastq.gz
 awk '/^S/{print ">"$2;print $3}' hifiasm_out.bp.p_ctg.gfa > hifiasm_out.bp.p_ctg.fasta
-```
-```sh
-filtlong --min_length 30000 ont_reads.fastq.gz 
-hifiasm -l 0 -o hifiasm_out --ul ont_reads.min30kb.fastq.gz hifi_reads.fastq.gz
-hifiasm -l 3 -o hifiasm_out --ul ont_reads.min30kb.fastq.gz hifi_reads.fastq.gz
-awk '/^S/{print ">"$2;print $3}' hifiasm_out.bp.p_ctg.gfa > hifiasm_out.bp.p_ctg.fasta
-```
-
-[NextDenovo](https://github.com/Nextomics/NextDenovo) v2.5
-
-```sh
-ls long_reads.fastq.gz > input.fofn
-nextdenovo run.cfg
-```
-Nanopore reads or Nanopore Q20+ reads as ONT corrected
-```sh
-[General]
-job_type = local
-job_prefix = nextDenovo
-task = all
-rewrite = yes
-deltmp = yes
-parallel_jobs = 20
-input_type = corrected
-read_type = ont # clr, ont, hifi
-input_fofn = input.fofn
-workdir = nextdenovo_v25
-
-[correct_option]
-read_cutoff = 1k
-genome_size = 250m # estimated genome size
-sort_options = -m 10g -t 20
-minimap2_options_raw = -t 8
-pa_correction = 5
-correction_options = -p 30
-
-[assemble_option]
-minimap2_options_cns = -t 8
-nextgraph_options = -a 1
-```
-
-Nanopore Q20+ reads as HiFi or PacBio HiFi reads
-```sh
-[General]
-job_type = local
-job_prefix = nextDenovo
-task = all
-rewrite = yes
-deltmp = yes
-parallel_jobs = 20
-input_type = raw
-read_type = hifi # clr, ont, hifi
-input_fofn = input.fofn
-workdir = nextdenovo_v25
-
-[correct_option]
-read_cutoff = 1k
-genome_size = 250m # estimated genome size
-sort_options = -m 10g -t 20
-minimap2_options_raw = -t 8
-pa_correction = 5
-correction_options = -p 30
-
-[assemble_option]
-minimap2_options_cns = -t 8
-nextgraph_options = -a 1
 ```
 
 [PECAT](https://github.com/lemene/PECAT) v0.0.3
@@ -190,9 +128,10 @@ polish_cns_options=
 polish_medaka_command = singularity exec -B `pwd -P`:`pwd -P`  -B /tmp:/tmp medaka_v1.7.2.sif medaka
 ```
 
-[Verkko](https://github.com/marbl/verkko) v0.0.3
+[Verkko](https://github.com/marbl/verkko) v1.3.1
 ```sh
-verkko -d verkko_v141 --hifi hifi_reads.filtlong.fastq.gz --nano ont_reads.fastq.gz --min-ont-length 30000
+verkko -d verkko_v131_hifi --hifi hifi_reads.fastq.gz --nano 
+verkko -d verkko_v131_hifi_ont --hifi hifi_reads.fastq.gz --nano ont_reads.fastq.gz 
 ```
 
 ## Decontamination
@@ -212,14 +151,14 @@ minimap2 -ax map-ont assembly.fasta ont_reads.trimmed.fastq.gz | samtools sort >
 minimap2 -ax map-hifi assembly.fasta hifi_reads.fastq.gz | samtools sort > minimap2.assembly.bam
 ```
 
-[BUSCO](https://gitlab.com/ezlab/busco) v5.4.7
+[BUSCO](https://gitlab.com/ezlab/busco) v5.8.0
 ```sh
-docker run -u $(id -u) -v $(pwd):/busco_wd ezlabgva/busco:v5.4.7_cv1 busco -i assembly.fasta -o busco_metazoa_odb10_assembly -m genome -l metazoa_odb10
+docker run -u $(id -u) -v $(pwd):/busco_wd ezlabgva/busco:v5.8.0_cv1 busco -i assembly.fasta -o busco_nematoda_odb12_assembly -m genome -l nematoda_odb12
 ```
 
 [BlobToolKit](https://blobtoolkit.genomehubs.org/) v4.3.2
 ```sh
-blobtools add --fasta assembly.fasta --cov minimap2.assembly.bam --hits assembly.fasta.blast.out --busco busco_metazoa_odb10_assembly/run_metazoa_odb10/full_table.tsv --taxdump taxdump --create blobdir_out
+blobtools add --fasta assembly.fasta --cov minimap2.assembly.bam --hits assembly.fasta.blast.out --busco busco_nematoda_odb12_assembly/run_nematoda_odb12/full_table.tsv --taxdump taxdump --create blobdir_out
 blobtools view blobdir_out
 ```
 
@@ -251,10 +190,9 @@ get_seqs dups.bed assembly.fasta
 assembly-stats assembly.fasta
 ```
 
-[BUSCO](https://gitlab.com/ezlab/busco) v5.4.7
+[BUSCO](https://gitlab.com/ezlab/busco) v5.8.0
 ```sh
-docker run -u $(id -u) -v $(pwd):/busco_wd ezlabgva/busco:v5.4.7_cv1 busco -i assembly.fasta -o busco_metazoa_odb10_assembly -m genome -l metazoa_odb10
-docker run -u $(id -u) -v $(pwd):/busco_wd ezlabgva/busco:v5.4.7_cv1 busco -i assembly.fasta -o busco_nematoda_odb10_assembly -m genome -l nematoda_odb10
+docker run -u $(id -u) -v $(pwd):/busco_wd ezlabgva/busco:v5.8.0_cv1 busco -i assembly.fasta -o busco_nematoda_odb12_assembly -m genome -l nematoda_odb12
 ```
 
 [KAT](https://github.com/TGAC/KAT) v2.4.2
