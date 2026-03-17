@@ -3,10 +3,10 @@
 ## Quality control
 
 ```sh
-jellyfish count -C -m 21 -s 50000000000 hifi_reads.fastq -o hifi.jf
-jellyfish histo hifi.jf > hifi.histo
+jellyfish count -C -m 21 -s 50000000000 illumina.fastq -o illumina.jf
+jellyfish histo illumina.jf > illumina.histo
 
-genomescope.R -i hifi.histo -o genomescope_k21 -k 21
+genomescope.R -i illumina.histo -o genomescope_k21 -k 21
 ```
 
 ```sh
