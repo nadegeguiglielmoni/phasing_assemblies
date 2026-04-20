@@ -1,4 +1,4 @@
-# Phasing or purging: tackling the genome assembly of a highly heterozygous animal species in the era of high-accuracy long reads
+# Phasing genome assemblies of non-model animal species in the era of high-accuracy long reads
 
 ## Quality control
 
