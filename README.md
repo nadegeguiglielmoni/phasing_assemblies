@@ -130,7 +130,7 @@ polish_medaka_command = singularity exec -B `pwd -P`:`pwd -P`  -B /tmp:/tmp meda
 
 [Verkko](https://github.com/marbl/verkko) v1.3.1
 ```sh
-verkko -d verkko_v131_hifi --hifi hifi_reads.fastq.gz --nano 
+verkko -d verkko_v131_hifi --hifi hifi_reads.fastq.gz 
 verkko -d verkko_v131_hifi_ont --hifi hifi_reads.fastq.gz --nano ont_reads.fastq.gz 
 ```
 
