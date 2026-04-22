@@ -9,12 +9,12 @@ bioRxiv 2024.06.16.599187; doi: https://doi.org/10.1101/2024.06.16.599187
 ```
 [doi:10.1101/2024.06.16.599187](https://doi.org/10.1101/2024.06.16.599187)
 
-* [Quality control](https://github.com/nadegeguiglielmoni/sections/quality_control.md)
+* [Quality control](https://github.com/nadegeguiglielmoni/blob/main/sections/quality_control.md)
 
-* [*De novo* assembly](https://github.com/nadegeguiglielmoni/sections/assembly.md)
+* [*De novo* assembly](https://github.com/nadegeguiglielmoni/blob/main/sections/assembly.md)
 
-* [Decontamination](https://github.com/nadegeguiglielmoni/sections/decontamination.md)
+* [Decontamination](https://github.com/nadegeguiglielmoni/blob/main/sections/decontamination.md)
 
-* [Assembly evaluation](https://github.com/nadegeguiglielmoni/sections/assembly_evaluation)
+* [Assembly evaluation](https://github.com/nadegeguiglielmoni/blob/main/sections/assembly_evaluation.md)
 
 
